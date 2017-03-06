@@ -1,0 +1,3 @@
+[submodule "SmartDataWebKG"]
+	path = SmartDataWebKG
+	url = https://github.com/AKSW/SmartDataWebKG.git
