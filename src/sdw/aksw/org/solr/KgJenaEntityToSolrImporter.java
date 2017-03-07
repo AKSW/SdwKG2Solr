@@ -262,7 +262,7 @@ public class KgJenaEntityToSolrImporter {
 	}
 	
 	
-	public void transferData() throws KgSolrException {
+	public void transferData() throws KgSolrException, InterruptedException {
 		int offset = 0;
 		int limit = 10000;
 		
@@ -282,6 +282,9 @@ public class KgJenaEntityToSolrImporter {
 				
 				System.out.println("Query graph: " + graphName + " and query: " + queryString);
 			
+				//changed
+				//Thread.sleep(50);
+				
 				QueryExecution queryResult = QueryExecutionFactory.sparqlService(
 											this.sparqlEndpoint, queryString, graphName);
 				ResultSet selectResult = queryResult.execSelect();
@@ -370,6 +373,8 @@ public class KgJenaEntityToSolrImporter {
 												long graphEntityCount = statsRecorder.getStatsEntry(getClass(), "graphEntityCount: " + graphName);
 												System.out.println("Imported Entities in total: " + entityCount +
 																   " Imported Entities per graph: " + graphEntityCount);
+												//changed
+												solrHandler.commit();
 											}
 												
 											String solrFieldName = mapping.solrFieldNames.get(i);
