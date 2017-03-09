@@ -67,7 +67,7 @@ public class KgSolrConfig {
 				configInstance.restrictions = jsonReader.getElementStringArray(jsonObject, "kgRestrictions", false);
 			}
 		} catch (Exception e) {
-			throw new KgSolrException("Was not able to init config", e);
+			throw new KgSolrException("Was not able to init config", e);	
 		}
 	}
 	
@@ -92,12 +92,16 @@ public class KgSolrConfig {
 			List<String> kgOptionalPredicateNames =
 					jsonReader.getElementStringArray(mappingObject, "kgOptionalPredicateNames", false);
 			
+			List<String> kgJsonPredicateNames = 
+					jsonReader.getElementStringArray(mappingObject, "kgJsonPredicateNames", false);
+			
 			if ((null == requiredPredicates || requiredPredicates.isEmpty()) &&
-				(null == kgOptionalPredicateNames || kgOptionalPredicateNames.isEmpty())) {
+				(null == kgOptionalPredicateNames || kgOptionalPredicateNames.isEmpty()) &&
+				(null == kgJsonPredicateNames || kgJsonPredicateNames.isEmpty())) {
 				continue;
 			}
 			
-		
+			//null == kgJsonPredicateNames || kgJsonPredicateNames.isEmpty()
 			// get variable name
 			String kgVariableName = jsonReader.getElementString(mappingObject, "kgVariableName", true);
 			
@@ -120,7 +124,7 @@ public class KgSolrConfig {
 			String mappingClass = jsonReader.getElementString(mappingObject, "sparql2SolrMappingClass", false);
 			
 			KgSolrMapping mapping = new KgSolrMappingRegex(
-					requiredPredicates, kgOptionalPredicateNames,
+					requiredPredicates, kgOptionalPredicateNames, kgJsonPredicateNames,
 					kgVariableName, solrFieldNames, matchPatterns, mappingClass);
 			
 			mappings.add(mapping);
@@ -175,6 +179,8 @@ public class KgSolrConfig {
 		/** name of optional KG predicates */
 		public final List<String> kgOptionalPredicateNames;
 		
+		public final List<String> kgJsonPredicateNames;
+		
 		/** variable name of SPARQL variable */
 		public final String kgVariableName;
 		/** solr field name which should store data */
@@ -186,10 +192,13 @@ public class KgSolrConfig {
 		
 		public KgSolrMapping(final List<String> kgRequiredPredicateNames,
 							 final List<String> kgOptionalPredicateNames,
+							 final List<String> kgJsonPredicateNames,
 							 final String kgVariableName, final List<String> solrFieldNames,
 							 final String sparqlMappingClass) {
 			this.kgRequiredPredicateNames = kgRequiredPredicateNames;
 			this.kgOptionalPredicateNames = kgOptionalPredicateNames;
+			this.kgJsonPredicateNames = kgJsonPredicateNames;
+			
 			
 			this.kgVariableName = kgVariableName;
 			this.solrFieldNames = solrFieldNames;
@@ -232,9 +241,10 @@ public class KgSolrConfig {
 		final List<Pattern> matchPattern;
 
 		public KgSolrMappingRegex(List<String> kgRequiredPredicateNames, List<String> kgOptionalPredicateNames,
+				List<String> kgJsonPredicateNames,
 				final String kgVariableName, final List<String> solrFieldName,
 				final List<Pattern> matchPattern, final String sparqlMappingClass) {
-			super(kgRequiredPredicateNames, kgOptionalPredicateNames, kgVariableName, solrFieldName, sparqlMappingClass);
+			super(kgRequiredPredicateNames, kgOptionalPredicateNames,kgJsonPredicateNames, kgVariableName, solrFieldName, sparqlMappingClass);
 			
 			this.matchPattern = matchPattern;
 		}

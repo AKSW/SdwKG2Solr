@@ -1,0 +1,558 @@
+{
+  "solrUrl": "http://localhost:8983/solr/companiesNew",
+  "sparqlUrl": "http://dbpedia.org/sparql",
+  "graphNames": [
+    "http://dbpedia.org",
+  ],
+  "kgRestrictions": [
+  	"a <http://dbpedia.org/ontology/Company>"    	
+  ],
+  "mappings": [
+    {
+      "kgRequiredPredicateNames": [
+        "http://www.w3.org/2000/01/rdf-schema#label",
+        "http://dbpedia.org/property/acronym",
+        "http://dbpedia.org/property/acronyms",
+        "http://dbpedia.org/property/abbreviation",
+        "http://xmlns.com/foaf/0.1/name",
+        "http://dbpedia.org/property/name",
+        "http://dbpedia.org/property/companyName"
+      ],
+      "kgOptionalPredicateNames": [],
+      "kgVariableName": "label",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "nameEn",
+      		"matchPattern": "(^\".*\"$)|(.*@en$)"
+      	},
+      	{
+      		"solrFieldName": "nameDe",
+      		"matchPattern": "(.*@de$)"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      ],
+      "kgOptionalPredicateNames": [],
+      "kgVariableName": "type",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "type"
+       	}
+      ]      		
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+        "http://www.w3.org/2002/07/owl#sameAs"
+      ],
+      "kgVariableName": "sameAs",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "sameAs"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+      	"http://dbpedia.org/ontology/subsidiary",
+      	"http://dbpedia.org/property/subsid",
+      	"http://dbpedia.org/property/subsidiaries",
+      	"http://dbpedia.org/property/allianz",
+      	"http://dbpedia.org/ontology/alliance",
+      	"http://dbpedia.org/property/alliance",
+      	"http://dbpedia.org/property/acquisitions"
+      ],
+      "kgVariableName": "inLinks",      
+      "solrMappingGroups": [
+      	{
+	      "solrFieldName": "inLink",
+	      "matchPattern": "^http.*"
+	    }
+	  ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+      	"http://dbpedia.org/property/parent",
+      	"http://dbpedia.org/ontology/parentCompany",      	
+      	"http://dbpedia.org/property/acquiredBy",
+      ],
+      "kgVariableName": "outLinks",      
+      "solrMappingGroups": [
+      	{
+	      "solrFieldName": "outLink",
+	      "matchPattern": "^http.*"
+	    }
+	  ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://xmlns.com/foaf/0.1/homepage",
+	"http://dbpedia.org/ontology/wikiPageExternalLink"
+      ],
+      "kgVariableName": "homepage",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "homepage",
+      		"matchPattern": "^http.*"
+      	}
+      ]    		
+    },  
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames": [
+	"<http://dbpedia.org/ontology/keyPerson> Name=<http://dbpedia.org/property/name>"
+      ],
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",
+      "kgVariableName": "keyPerson",     
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "ceoJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"	
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/keyPerson>/<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "keyPName",     
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "ceoName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"	
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+   	"http://dbpedia.org/property/logo",
+	"http://dbpedia.org/ontology/thumbnail"
+      ],
+      "kgVariableName": "logo",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "logo"
+       	}
+      ]      		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+   	 "http://dbpedia.org/ontology/abstract"
+      ],
+      "kgVariableName": "abstract",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "abstractEn",
+      		"matchPattern": "(^\".*\"$)|(.*@en$)"
+      	},
+      	{
+      		"solrFieldName": "abstractDe",
+      		"matchPattern": "(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames" : [
+	"<http://dbpedia.org/ontology/headquarter> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>"
+      ],
+      "kgVariableName": "headquarter",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",     
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "headquarterLocationJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+"<http://dbpedia.org/ontology/headquarter>/<http://www.georss.org/georss/point>"
+       ],
+      "kgVariableName": "hqLocation",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.NewEntityGeoLocationMapping",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "headquarterLocationRpt",
+      		"matchPattern": null
+      	},
+      	{
+      		"solrFieldName": "headquarterLocationLatLon",
+      		"matchPattern": null
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/headquarter>/<http://www.w3.org/2000/01/rdf-schema#label>"
+       ],
+      "kgVariableName": "hqName",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "headquarterLocationName",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://dbpedia.org/property/revenue",
+	"http://de.dbpedia.org/property/umsatz"
+      ],
+      "kgVariableName": "revenue",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "revenue",
+		"matchPattern": "^[0-9]*$"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames" : [
+      	"<http://dbpedia.org/ontology/foundationPlace> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>"
+      ],
+      "kgVariableName": "foundationPlace",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",           
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "foundationPlaceJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/foundationPlace>/<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "fPName",          
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "foundationPlaceName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/foundationPlace>/<http://www.georss.org/georss/point>"
+      ],
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.NewEntityGeoLocationMapping",
+      "kgVariableName": "fPLocation",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "foundationPlaceLatLon",
+      		"matchPattern": null
+      	},
+      	{
+      		"solrFieldName": "foundationPlaceRpt",
+      		"matchPattern": null
+      	}
+      ]    		
+    },	
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://de.dbpedia.org/property/gründungsdatum",
+	"http://dbpedia.org/ontology/foundingDate",
+	"http://dbpedia.org/property/gründungsdatum"
+      ],
+      "kgVariableName": "foundationDate",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "foundationDate"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames": [
+	"<http://dbpedia.org/ontology/product> Name=<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "products", 
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",     
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "productJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/product>/<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "prName",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "productName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/property/services>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/service>/<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "technology",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "technology",
+		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames": [
+	"<http://dbpedia.org/ontology/founder> Name=<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "founder",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",          
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "founderJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]    		
+    },
+        {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/founder>/<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "founder", 
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "founderName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/property/industry>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/industry>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"http://de.dbpedia.org/property/branche",
+	"http://dbpedia.org/property/branche"
+      ],
+      "kgVariableName": "branche", 
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "business",
+		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames": [
+        "<http://dbpedia.org/ontology/parentCompany> Name=<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/owningCompany> Name=<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "parentCompany",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",    
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "parentCompanyJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/parentCompany>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/owningCompany>/<http://www.w3.org/2000/01/rdf-schema#label>"      
+      ],
+      "kgVariableName": "pCompanyName",    
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "parentCompanyName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+      ],
+      "kgJsonPredicateNames": [
+        "<http://dbpedia.org/ontology/subsidiary> Name=<http://www.w3.org/2000/01/rdf-schema#label>"
+      ],
+      "kgVariableName": "childCompany",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",    
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "childCompanyJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)|(^\".*\"$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/subsidiary>/<http://www.w3.org/2000/01/rdf-schema#label>"     
+      ],
+      "kgVariableName": "cCompanyName",    
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "childCompanyName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+ 	"http://xmlns.com/foaf/0.1/isPrimaryTopicOf"
+      ],
+      "kgVariableName": "wikiPage",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "wikiPage"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/locationCity>/<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/locationCountry>/<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/location>/<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/headquarter>/<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/foundationPlace>/<http://www.georss.org/georss/point>"
+       ],
+      "kgVariableName": "lLocation",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.NewEntityGeoLocationMapping",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "locationRpt",
+      		"matchPattern": null
+      	},
+      	{
+      		"solrFieldName": "locationLatLon",
+      		"matchPattern": null
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+	"<http://dbpedia.org/ontology/locationCity>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/locationCountry>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/location>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/headquarter>/<http://www.w3.org/2000/01/rdf-schema#label>",
+	"<http://dbpedia.org/ontology/foundationPlace>/<http://www.w3.org/2000/01/rdf-schema#label>"
+       ],
+      "kgVariableName": "lName",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "locationName",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+       ],
+      "kgJsonPredicateNames": [
+	"<http://dbpedia.org/ontology/locationCity> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/locationCountry> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/location> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/headquarter> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>",
+	"<http://dbpedia.org/ontology/foundationPlace> Name=<http://www.w3.org/2000/01/rdf-schema#label> Loc=<http://www.georss.org/georss/point>"
+       ],
+      "kgVariableName": "location",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.CompanyMapping",  
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "locationJson",
+      		"matchPattern": "(.*@en$)|(.*@de$)"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://dbpedia.org/property/twitter"
+      ],
+      "kgVariableName": "twitter",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "twitter",
+      		"matchPattern": "^http.*"
+      	}
+      ]    		
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://dbpedia.org/ontology/numberOfEmployees"
+      ],
+      "kgVariableName": "numberOfEmployees",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "employeeNumber",
+		"matchPattern": "^[0-9]*$"
+
+      	}
+      ]    		
+    }
+  ]
+}

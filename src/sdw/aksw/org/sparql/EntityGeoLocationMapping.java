@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
+
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
@@ -50,17 +52,23 @@ public class EntityGeoLocationMapping implements Solr2SparqlMappingInterface {
 		String longitude = coordinateArray[0];
 		String latLong = latitude + "," + longitude;
 		
-		fieldDataMap.get("locationLatLon");
-		Set<String> coordinateSet0 = fieldDataMap.get("locationLatLon");
-		if (null == coordinateSet0) {
-			coordinateSet0 = new HashSet<>();
-			fieldDataMap.put("locationLatLon", coordinateSet0);
-		}
-		
-		Set<String> coordinateSet1 = fieldDataMap.get("locationRpt");
-		if (null == coordinateSet1) {
-			coordinateSet1 = new HashSet<>();
-			fieldDataMap.put("locationRpt", coordinateSet1);
+		Set<String> coordinateSet0 = null;
+		Set<String> coordinateSet1 = null;
+		lock.lock();
+		try {
+			coordinateSet0 = fieldDataMap.get("locationLatLon");
+			if (null == coordinateSet0) {
+				coordinateSet0 = new ConcurrentHashSet<>();
+				fieldDataMap.put("locationLatLon", coordinateSet0);
+			}
+			
+			coordinateSet1 = fieldDataMap.get("locationRpt");
+			if (null == coordinateSet1) {
+				coordinateSet1 = new ConcurrentHashSet<>();
+				fieldDataMap.put("locationRpt", coordinateSet1);
+			}
+		} finally {
+			lock.unlock();
 		}
 		
 		coordinateSet0.add(latLong);

@@ -2,6 +2,7 @@ package sdw.aksw.org.sparql;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.hp.hpl.jena.query.QuerySolution;
 
@@ -15,6 +16,8 @@ import sdw.aksw.org.config.KgSolrConfig.KgSolrMapping;
  *
  */
 public interface Solr2SparqlMappingInterface {
+	
+	static ReentrantLock lock = new ReentrantLock(true);
 
 	/**
 	 * This method can be used to fill out the fieldDataMap which is used to
