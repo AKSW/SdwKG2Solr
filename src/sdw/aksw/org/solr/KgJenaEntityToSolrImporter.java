@@ -524,7 +524,7 @@ public class KgJenaEntityToSolrImporter {
 								+ " block time: " + diffBlock + "[ms]");
 						
 						// changed
-						//solrHandler.commit();
+						solrHandler.commit();
 					}
 				}
 				

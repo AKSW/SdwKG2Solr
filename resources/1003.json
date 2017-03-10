@@ -1,6 +1,6 @@
 {
-  "solrUrl": "http://localhost:8983/solr/companiesNew",
-  "sparqlUrl": "http://localhost:10083/sparql",
+  "solrUrl": "http://localhost:10083/solr/companiesNew",
+  "sparqlUrl": "http://localhost:8892/sparql",
   "graphNames": [
     "http://de.dbpedia.org","http://en.dbpedia.org"
   ],
