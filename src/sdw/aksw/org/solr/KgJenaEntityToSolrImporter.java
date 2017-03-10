@@ -199,6 +199,8 @@ public class KgJenaEntityToSolrImporter {
 			count.incrementAndGet();
 		}
 		
+		//System.out.println(query.toString());
+		
 		query.append("\n");
 	}
 
@@ -291,7 +293,7 @@ public class KgJenaEntityToSolrImporter {
 				solrDoc.addFieldData(fieldName, fieldData);
 			}
 
-			if (forceWrite || this.docCount.incrementAndGet() % 5_000 == 0) {
+			if (this.docCount.incrementAndGet() % 5_000 == 0 || forceWrite) {
 				this.solrHandler.addSolrDocument(solrDoc, true);
 			} else {
 				this.solrHandler.addSolrDocument(solrDoc, false);
@@ -353,7 +355,7 @@ public class KgJenaEntityToSolrImporter {
 				String queryString = this.getQuery(offset, limit);
 				offset += limit;
 
-				System.out.println("Query graph: " + graphName + " and query: " + queryString);
+//				System.out.println("Query graph: " + graphName + " and query: " + queryString);
 
 				QueryExecution queryResult = QueryExecutionFactory.sparqlService(this.sparqlEndpoint, queryString,
 						graphName);
@@ -365,10 +367,6 @@ public class KgJenaEntityToSolrImporter {
 				while (selectResult.hasNext()) {
 					QuerySolution querySolution = selectResult.next();
 					
-					// changed
-					Thread.sleep(300);
-
-
 					Resource uri = querySolution.getResource("uri");
 					final String uriString = uri.getURI();
 					if (null == previousUri || false == previousUri.equals(uriString)) {
@@ -398,26 +396,32 @@ public class KgJenaEntityToSolrImporter {
 
 							String entityQueryString = getEntityQuery(this.uriString, this.mappings);
 
+							ResultSet entitySelectResult = null;
 							QueryExecution entityQueryResult = null;
-							int tryCount = 5;
+							int tryCount = 10;
 							do {
 								try {
 									entityQueryResult = QueryExecutionFactory.sparqlService(sparqlEndpoint,
-											entityQueryString, graphName);
+											entityQueryString, graphName);								
+									
+									entitySelectResult = entityQueryResult.execSelect();
+									if (false == entitySelectResult.hasNext()) {
+										// no more results from this graph
+										return "";
+									}
 								} catch (Exception e) {
 									if (0 >= tryCount) {
 										throw e;
 									} else {
-										Thread.sleep(500);
+										if (null != entityQueryResult) {
+											entityQueryResult.close();
+											entityQueryResult = null;
+										}
+										
+										Thread.sleep(1000);
 									}
 								}
-							} while (null == entityQueryResult && 0 < tryCount--);
-
-							ResultSet entitySelectResult = entityQueryResult.execSelect();
-							if (false == entitySelectResult.hasNext()) {
-								// no more results from this graph
-								return "";
-							}
+							} while ((null == entityQueryResult || null == entitySelectResult) && 0 < tryCount--);
 
 							while (entitySelectResult.hasNext()) {
 								QuerySolution entityResult = entitySelectResult.next();
@@ -432,10 +436,7 @@ public class KgJenaEntityToSolrImporter {
 									if (this.matchingVarNames.isEmpty()) {
 										continue;
 									}
-
-									//changed 
-									//TODO
-									
+		
 									for (String matchingVarName : this.matchingVarNames) {
 
 										// now repeat for all registered solr
@@ -461,6 +462,7 @@ public class KgJenaEntityToSolrImporter {
 						};
 					};
 					
+					//change
 					int blockSize = 2;
 					for (int i = 0; i < this.mappings.size(); i += blockSize) {
 						
@@ -484,7 +486,7 @@ public class KgJenaEntityToSolrImporter {
 
 					for (Future<String> future : futures) {
 						try {
-							future.get(10000, TimeUnit.SECONDS);
+							future.get(10_000, TimeUnit.SECONDS);
 						} catch (TimeoutException | ExecutionException | InterruptedException e) {
 							throw new KgSolrException("Future Exception", e);
 						}
@@ -520,8 +522,9 @@ public class KgJenaEntityToSolrImporter {
 								+ " Imported Entities per graph: " + graphEntityCount
 								+ " average time: " + ((float) entityCount / (diffAll / 1000)) + "[entities/s] "
 								+ " block time: " + diffBlock + "[ms]");
+						
 						// changed
-						solrHandler.commit();
+						//solrHandler.commit();
 					}
 				}
 				

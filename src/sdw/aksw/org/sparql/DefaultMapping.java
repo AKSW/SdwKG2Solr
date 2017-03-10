@@ -50,7 +50,17 @@ public class DefaultMapping implements Solr2SparqlMappingInterface {
 		if (node.isLiteral()) {
 			Literal literal = node.asLiteral();
 				
-			String literal_str = bracketsPattern.matcher(literal.getLexicalForm()).replaceAll("");
+			String literal_str;
+			
+			if(solrFieldName.equals("abstractEn") || 
+					solrFieldName.equals("abstractDe") || 
+					solrFieldName.equals("revenue") ||
+					solrFieldName.equals("employeeNumber") )
+			{
+				literal_str = literal.getLexicalForm();
+			} else {
+				literal_str = bracketsPattern.matcher(literal.getLexicalForm()).replaceAll("");
+			}
 			
 			fieldData.add(literal_str);
 

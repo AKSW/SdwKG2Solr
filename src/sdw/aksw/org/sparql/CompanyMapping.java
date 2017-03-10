@@ -52,21 +52,24 @@ public class CompanyMapping implements Solr2SparqlMappingInterface {
 			if (null == uri) {
 				return;
 			}
+			
+			RDFNode name = querySolution.get(kgVar + "Name" + index);
+			String name_str = "";
 
 			String uri_str = "";
 
 			if (uri.isLiteral()) {
-				uri_str += uri.asLiteral().toString();
+				uri_str += uri.asLiteral().getLexicalForm().toString();
+				if( null == name ) {
+					jo.addProperty("name", uri_str);
+				}
 			} else if (uri.isResource()) {
 				uri_str += uri.asResource().toString();
 			}
-
+			
 			jo.addProperty("uri", uri_str);
 			
 			//name
-			RDFNode name = querySolution.get(kgVar + "Name" + index);
-			String name_str = "";
-
 			if ( mapping.matches(name, 0) ) {
 			
 			if (null != name) {
@@ -77,20 +80,21 @@ public class CompanyMapping implements Solr2SparqlMappingInterface {
 					name_str += name.asResource().toString();
 				}
 				jo.addProperty("name", name_str);
-			}
-
-			//location
-			RDFNode loc = querySolution.get(kgVar + "Loc" + index);
-			String loc_str = "";
-
-			if (null != loc) {
-				if (loc.isLiteral()) {
-					loc_str += loc.asLiteral().toString();
-				} else if (loc.isResource()) {
-					loc_str += loc.asResource().toString();
-				}
-				jo.addProperty("location", loc_str.replace(" ",","));
 				
+				Set<String> fieldData = null;
+				lock.lock();
+				try {
+					fieldData = fieldDataMap.get(kgVar+"Name");
+
+					if (null == fieldData) {
+						fieldData = new ConcurrentHashSet<>();
+						fieldDataMap.put(kgVar+"Name", fieldData);
+					}
+				} finally {
+					lock.unlock();
+				}
+				
+				fieldData.add(name_str);
 			}
 			
 			Set<String> fieldData = null;
