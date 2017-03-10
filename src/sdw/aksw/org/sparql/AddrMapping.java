@@ -48,8 +48,8 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 		} else if (matchingVarName.contains(kgVar + "Loc") || matchingVarName.contains(kgVar + "Plz")) {
 			index = Integer.parseInt(matchingVarName.substring((kgVar + "123").length()));
 			
-		} else if (matchingVarName.contains(kgVar + "Straße")) {
-			index = Integer.parseInt(matchingVarName.substring((kgVar + "123456").length()));
+		} else if (matchingVarName.contains(kgVar + "Strasse")) {
+			index = Integer.parseInt(matchingVarName.substring((kgVar + "1234567").length()));
 			
 		} else if (matchingVarName.contains(kgVar + "Bland") || matchingVarName.contains(kgVar + "Stadt")) {
 			index = Integer.parseInt(matchingVarName.substring((kgVar + "12345").length()));
@@ -78,7 +78,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 		}
 	
 		// name Straße+ Plz+ Land+ Bland+ Stadt+
-		RDFNode straße = querySolution.get(kgVar + "Straße" + index);
+		RDFNode straße = querySolution.get(kgVar + "Strasse" + index);
 		String straße_str = "";
 
 		RDFNode plz = querySolution.get(kgVar + "Plz" + index);
