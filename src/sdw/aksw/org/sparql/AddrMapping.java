@@ -28,7 +28,9 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 
 	static final Pattern bracketsPattern = Pattern.compile("\\(.*?\\)");
 
-	static final Pattern pattern = Pattern.compile("[\\d\\.,\\s-]+");
+	static final Pattern dbpediapattern = Pattern.compile("[\\d\\.,\\s-]+");
+	
+	final static protected Pattern coordinatesPattern = Pattern.compile("(?<=POINT\\()([0-9.]+)(\\s+)([0-9.]+)");
 
 	@Override
 	public void fillFieldDataMap(final QuerySolution querySolution, final KgSolrMapping mapping,
@@ -106,7 +108,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 				} else if (straße.isResource()) {
 					straße_str += straße.asResource().toString();
 				}
-				name += straße_str;
+				name += straße_str+", ";
 			}
 			
 			if (null != plz) {
@@ -115,7 +117,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 				} else if (plz.isResource()) {
 					plz_str += plz.asResource().toString();
 				}
-				name += plz_str;
+				name += plz_str+", ";
 			}
 			
 			if (null != stadt) {
@@ -124,7 +126,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 				} else if (stadt.isResource()) {
 					stadt_str += stadt.asResource().toString();
 				}
-				name += stadt_str;
+				name += stadt_str+", ";
 			}
 			
 			if (null != bland) {
@@ -133,7 +135,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 				} else if (bland.isResource()) {
 					bland_str += bland.asResource().toString();
 				}
-				name += bland_str;
+				name += bland_str+", ";
 			}
 			
 			if (null != land) {
@@ -164,21 +166,26 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 		// Loc
 		RDFNode loc = querySolution.get(kgVar + "Loc" + index);
 		String loc_str = "";
+			
+		String coordinatesLiteral = loc.asLiteral().getLexicalForm();
+		Matcher match = coordinatesPattern.matcher(loc_str);
 
-		if (null != loc) {
-			if (loc.isLiteral()) {
-				loc_str += loc.asLiteral().getLexicalForm().toString();
-			} else if (loc.isResource()) {
-				loc_str += loc.asResource().toString();
-			}
+		String[] coordinateArray = null;
+		while (match.find()) {
+			int start = match.start();
+			int end = match.end();
+			
+			String coord = coordinatesLiteral.substring(start, end);
+			
+			coordinateArray = coord.split("\\s+");
+			
+			jo.addProperty("location", coord.replace(" ", ","));
 		}
-				
-		Matcher match = pattern.matcher(loc_str);
-
-		if (match.matches() && !loc_str.equals("")) {
-			jo.addProperty("location", loc_str.replace(" ", ","));
+		
+		if (null == coordinateArray || 2 != coordinateArray.length) {
+			return;
 		}
-
+		
 		//JSON
 		Set<String> fieldData = null;
 		lock.lock();
@@ -213,10 +220,8 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 			String nameLatLon = "locationLatLon";
 			String nameRpt = "locationRpt";
 			
-			String[] loc_arr = loc_str.split(" ");
-			
-			String latitude = loc_arr[1];
-			String longitude = loc_arr[0];
+			String latitude = coordinateArray[1];
+			String longitude = coordinateArray[0];
 			String latLong = latitude + "," + longitude;
 			String rpt = longitude + " " + latitude;
 
