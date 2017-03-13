@@ -82,21 +82,26 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 		// name Straße+ Plz+ Land+ Bland+ Stadt+
 		RDFNode straße = querySolution.get(kgVar + "Strasse" + index);
 		String straße_str = "";
+		String straße_lit = "";
 
 		RDFNode plz = querySolution.get(kgVar + "Plz" + index);
 		String plz_str = "";
+		String plz_lit = "";
 		
 		RDFNode land = querySolution.get(kgVar + "Land" + index);
 		String land_str = "";
+		String land_lit = "";
 		
 		RDFNode bland = querySolution.get(kgVar + "Bland" + index);
 		String bland_str = "";
+		String bland_lit = "";
 		
 		RDFNode stadt = querySolution.get(kgVar + "Stadt" + index);
 		String stadt_str = "";
+		String stadt_lit = "";
 		
 		String name ="";
-		
+
 		if (true) {
 			
 			//Marvin Hofer [4:53 PM] 
@@ -105,70 +110,106 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 			if (null != straße) {
 				if (straße.isLiteral()) {
 					straße_str += straße.asLiteral().getLexicalForm();
+					straße_lit += straße.asLiteral();
+
 				} else if (straße.isResource()) {
 					straße_str += straße.asResource().toString();
 				}
-				name += straße_str+", ";
 			}
 			
 			if (null != plz) {
 				if (plz.isLiteral()) {
 					plz_str += plz.asLiteral().getLexicalForm();
+					plz_lit += plz.asLiteral();
+
 				} else if (plz.isResource()) {
 					plz_str += plz.asResource().toString();
 				}
-				name += plz_str+", ";
+				
 			}
 			
 			if (null != stadt) {
 				if (stadt.isLiteral()) {
 					stadt_str += stadt.asLiteral().getLexicalForm();
+					stadt_lit += stadt.asLiteral();
+
 				} else if (stadt.isResource()) {
 					stadt_str += stadt.asResource().toString();
 				}
-				name += stadt_str+", ";
+				
 			}
 			
 			if (null != bland) {
 				if (bland.isLiteral()) {
 					bland_str += bland.asLiteral().getLexicalForm();
+					bland_lit += bland.asLiteral();
+
+					
 				} else if (bland.isResource()) {
 					bland_str += bland.asResource().toString();
 				}
-				name += bland_str+", ";
+				
 			}
 			
 			if (null != land) {
 				if (land.isLiteral()) {
 					land_str += land.asLiteral().getLexicalForm();
+					land_lit += land.asLiteral();
+
 				} else if (land.isResource()) {
 					land_str += land.asResource().toString();
 				}
-				name += land_str;
+				
 			}
 			
-			Set<String> fieldData = null;
-			lock.lock();
-			try {
-				fieldData = fieldDataMap.get(kgVar+"Name");
+			//Only de and en
 
-				if (null == fieldData) {
-					fieldData = new ConcurrentHashSet<>();
-					fieldDataMap.put(kgVar+"Name", fieldData);
-				}
-			} finally {
-				lock.unlock();
+			String[] lang = {"@de","@en"};
+
+			for (String l : lang ) {
+				if (  
+					( stadt_lit.contains(l) || stadt_lit.equals("") ) && 
+					( bland_lit.contains(l) || bland_lit.equals("") ) && 
+					( land_lit.contains(l) || stadt_lit.equals("") ) 
+				) {
+				
+					name = straße_str+", "+plz_str+", "+stadt_str+", "+bland_str+", "+land_str;	
+				}	
 			}
+
+			//name = straße_lit+", "+plz_lit+", "+stadt_lit+", "+bland_lit+", "+land_lit;
 			
-			fieldData.add(name);
+			if( !name.equals("") ) {
+				Set<String> fieldData = null;
+				lock.lock();
+				try {
+					fieldData = fieldDataMap.get(kgVar+"Name");
+
+					if (null == fieldData) {
+						fieldData = new ConcurrentHashSet<>();
+						fieldDataMap.put(kgVar+"Name", fieldData);
+					}
+				} finally {
+					lock.unlock();
+				}
+			
+				fieldData.add(name);
+
+				jo.addProperty("name", name);
+			}
 		}
 
 		// Loc
 		RDFNode loc = querySolution.get(kgVar + "Loc" + index);
-		String loc_str = "";
-			
-		String coordinatesLiteral = loc.asLiteral().getLexicalForm();
-		Matcher match = coordinatesPattern.matcher(loc_str);
+		
+
+		String coordinatesLiteral = "";
+
+		if (null != loc && loc.isLiteral() ) {	
+			coordinatesLiteral = loc.asLiteral().getLexicalForm();
+		}
+
+		Matcher match = coordinatesPattern.matcher(coordinatesLiteral);
 
 		String[] coordinateArray = null;
 		while (match.find()) {
@@ -177,41 +218,53 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 			
 			String coord = coordinatesLiteral.substring(start, end);
 			
+			//System.out.println(coord);
+
 			coordinateArray = coord.split("\\s+");
 			
-			jo.addProperty("location", coord.replace(" ", ","));
+			
 		}
 		
 		if (null == coordinateArray || 2 != coordinateArray.length) {
 			return;
 		}
 		
-		//JSON
-		Set<String> fieldData = null;
-		lock.lock();
-		try {
-			fieldData = fieldDataMap.get(solrFieldName);
+		//Coordfields -180 < X < 180 & -90 < Y 90
 
-			if (null == fieldData) {
-				fieldData = new ConcurrentHashSet<>();
-				fieldDataMap.put(solrFieldName, fieldData);
+		//float x = Float.parseFloat(coordinateArray[0]);
+		//float y = Float.parseFloat(coordinateArray[1]);
+
+		//if( !(-180 < x && x < 180 ) || !( -90 < y && y < 90 ) ) {
+		//	return;
+		//}
+	
+		//For google Y,X save
+		jo.addProperty("location", coordinateArray[1]+","+coordinateArray[0]);
+
+		//JSON
+		if( !name.equals("") ) {
+			Set<String> fieldData = null;
+			lock.lock();
+			try {
+				fieldData = fieldDataMap.get(solrFieldName);
+
+				if (null == fieldData) {
+					fieldData = new ConcurrentHashSet<>();
+					fieldDataMap.put(solrFieldName, fieldData);
+				}
+			} finally {
+				lock.unlock();
 			}
-		} finally {
-			lock.unlock();
+
+			StringBuffer buffer = new StringBuffer();
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			gson.toJson(jo, buffer);
+
+			fieldData.add(buffer.toString());
 		}
 
-		StringBuffer buffer = new StringBuffer();
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		gson.toJson(jo, buffer);
-
-		fieldData.add(buffer.toString());
-
-		
-		//Coordfields
-		
-//		System.out.println(lat_str+","+lon_str);
-		
-		if (match.matches() && !loc_str.equals(""))
+		//Solr LatLon and Rpt
+		if (true)
 
 		{
 
@@ -223,7 +276,7 @@ public class AddrMapping implements Solr2SparqlMappingInterface {
 			String latitude = coordinateArray[1];
 			String longitude = coordinateArray[0];
 			String latLong = latitude + "," + longitude;
-			String rpt = longitude + " " + latitude;
+			String rpt = latitude + "," + longitude;
 
 			Set<String> coordinateSet0 = null;
 			Set<String> coordinateSet1 = null;
