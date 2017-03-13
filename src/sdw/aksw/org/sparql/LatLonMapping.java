@@ -132,32 +132,11 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 		}
 
 		
-		//JSON
-		Set<String> fieldData = null;
-		lock.lock();
-		try {
-			fieldData = fieldDataMap.get(solrFieldName);
-
-			if (null == fieldData) {
-				fieldData = new ConcurrentHashSet<>();
-				fieldDataMap.put(solrFieldName, fieldData);
-			}
-		} finally {
-			lock.unlock();
-		}
-
-		StringBuffer buffer = new StringBuffer();
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		gson.toJson(jo, buffer);
-
-		fieldData.add(buffer.toString());
-
-		
 		//Coordfields
 		
 //		System.out.println(lat_str+","+lon_str);
 		
-		if (match.matches() && !lat_str.equals("") && !lon_str.equals(""))
+		if (match.matches() && !lat_str.equals("") && !lon_str.equals("") && !name_str.equals("") )
 
 		{
 
@@ -165,11 +144,12 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 			
 			String nameLatLon = "locationLatLon";
 			String nameRpt = "locationRpt";
+			String jsonField = "locationJson";
 			
 			String latitude = lat_str;
 			String longitude = lon_str;
 			String latLong = latitude + "," + longitude;
-			String rpt = longitude + " " + latitude;
+			String rpt = latitude + "," + longitude;
 
 			Set<String> coordinateSet0 = null;
 			Set<String> coordinateSet1 = null;
@@ -190,6 +170,28 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 			} finally {
 				lock.unlock();
 			}
+			
+			//JSON
+			if( !name_str.equals("") ) {
+				Set<String> fieldData = null;
+				lock.lock();
+				try {
+					fieldData = fieldDataMap.get(jsonField);
+		
+					if (null == fieldData) {
+						fieldData = new ConcurrentHashSet<>();
+						fieldDataMap.put(jsonField, fieldData);
+					}
+				} finally {
+					lock.unlock();
+				}
+		
+				StringBuffer buffer = new StringBuffer();
+				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+				gson.toJson(jo, buffer);
+		
+				fieldData.add(buffer.toString());
+			}
 
 			coordinateSet0.add(latLong);
 			coordinateSet1.add(rpt);
@@ -197,16 +199,40 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 			 if(matchingVarName.startsWith("foundationPlace")) {
 				 nameLatLon = "foundationPlaceLatLon";
 				 nameRpt = "foundationPlaceRpt";
+				 jsonField = "foundationPlaceJson";
 				 st_location = false;
 			 }
 			
 			 if(matchingVarName.startsWith("headquarter")) {
 				 nameLatLon = "headquarterLocationLatLon";
 				 nameRpt = "headquarterLocationRpt";
+				 jsonField = "headquarterLocationJson";
 				 st_location = false;
 			 }
 
 			 if( false == st_location ) {
+				 
+					//JSON
+					if( !name_str.equals("") ) {
+						Set<String> fieldData = null;
+						lock.lock();
+						try {
+							fieldData = fieldDataMap.get(jsonField);
+				
+							if (null == fieldData) {
+								fieldData = new ConcurrentHashSet<>();
+								fieldDataMap.put(jsonField, fieldData);
+							}
+						} finally {
+							lock.unlock();
+						}
+				
+						StringBuffer buffer = new StringBuffer();
+						Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+						gson.toJson(jo, buffer);
+				
+						fieldData.add(buffer.toString());
+					}
 		
 				Set<String> coordinateSet3 = null;
 				Set<String> coordinateSet4 = null;

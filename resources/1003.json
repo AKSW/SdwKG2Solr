@@ -1,8 +1,8 @@
 {
-  "solrUrl": "http://localhost:10083/solr/companiesNew",
-  "sparqlUrl": "http://localhost:8892/sparql",
+  "solrUrl": "http://localhost:8893/solr/companiesNew",
+  "sparqlUrl": "http://dbpedia.rg/sparql",
   "graphNames": [
-    "http://de.dbpedia.org","http://en.dbpedia.org"
+    "http://de.dbpedia.org"
   ],
   "kgRestrictions": [
   	"a <http://dbpedia.org/ontology/Company>"    	
