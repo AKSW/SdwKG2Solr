@@ -131,6 +131,79 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 			jo.addProperty("location", lat_str + "," + lon_str);
 		}
 
+		//JSON
+		String jsonField = "locationJson";
+		
+		boolean st_location = true;
+		
+		//JSON st_location
+		if( !name_str.equals("") ) {
+			Set<String> fieldData = null;
+			lock.lock();
+			try {
+				fieldData = fieldDataMap.get(jsonField);
+	
+				if (null == fieldData) {
+					fieldData = new ConcurrentHashSet<>();
+					fieldDataMap.put(jsonField, fieldData);
+				}
+			} finally {
+				lock.unlock();
+			}
+	
+			StringBuffer buffer = new StringBuffer();
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			gson.toJson(jo, buffer);
+	
+			fieldData.add(buffer.toString());
+			
+			//not standart_location
+				
+			if(matchingVarName.startsWith("foundationPlace")) {
+				 jsonField = "foundationPlaceJson";
+				 st_location = false;
+			 }
+			
+			 if(matchingVarName.startsWith("headquarter")) {
+				 jsonField = "headquarterLocationJson";
+				 st_location = false;
+			 }
+
+			 if( false == st_location ) {
+				 //JSON
+				Set<String> fieldData2 = null;
+				lock.lock();
+				try {
+					fieldData2 = fieldDataMap.get(jsonField);
+		
+					if (null == fieldData2) {
+						fieldData2 = new ConcurrentHashSet<>();
+						fieldDataMap.put(jsonField, fieldData2);
+					}
+				} finally {
+					lock.unlock();
+				}
+		
+				fieldData2.add(buffer.toString());
+				
+				 //St_Name
+				Set<String> fieldData3 = null;
+				lock.lock();
+				try {
+					fieldData3 = fieldDataMap.get("locationName");
+		
+					if (null == fieldData3) {
+						fieldData3 = new ConcurrentHashSet<>();
+						fieldDataMap.put("locationName", fieldData3);
+					}
+				} finally {
+					lock.unlock();
+				}
+		
+				fieldData3.add(name_str);
+			 }
+		}
+		
 		
 		//Coordfields
 		
@@ -139,12 +212,9 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 		if (match.matches() && !lat_str.equals("") && !lon_str.equals("") && !name_str.equals("") )
 
 		{
-
-			boolean st_location = true;
 			
 			String nameLatLon = "locationLatLon";
 			String nameRpt = "locationRpt";
-			String jsonField = "locationJson";
 			
 			String latitude = lat_str;
 			String longitude = lon_str;
@@ -171,28 +241,6 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 				lock.unlock();
 			}
 			
-			//JSON
-			if( !name_str.equals("") ) {
-				Set<String> fieldData = null;
-				lock.lock();
-				try {
-					fieldData = fieldDataMap.get(jsonField);
-		
-					if (null == fieldData) {
-						fieldData = new ConcurrentHashSet<>();
-						fieldDataMap.put(jsonField, fieldData);
-					}
-				} finally {
-					lock.unlock();
-				}
-		
-				StringBuffer buffer = new StringBuffer();
-				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-				gson.toJson(jo, buffer);
-		
-				fieldData.add(buffer.toString());
-			}
-
 			coordinateSet0.add(latLong);
 			coordinateSet1.add(rpt);
 
@@ -200,39 +248,15 @@ public class LatLonMapping implements Solr2SparqlMappingInterface {
 				 nameLatLon = "foundationPlaceLatLon";
 				 nameRpt = "foundationPlaceRpt";
 				 jsonField = "foundationPlaceJson";
-				 st_location = false;
 			 }
 			
 			 if(matchingVarName.startsWith("headquarter")) {
 				 nameLatLon = "headquarterLocationLatLon";
 				 nameRpt = "headquarterLocationRpt";
 				 jsonField = "headquarterLocationJson";
-				 st_location = false;
 			 }
 
 			 if( false == st_location ) {
-				 
-					//JSON
-					if( !name_str.equals("") ) {
-						Set<String> fieldData = null;
-						lock.lock();
-						try {
-							fieldData = fieldDataMap.get(jsonField);
-				
-							if (null == fieldData) {
-								fieldData = new ConcurrentHashSet<>();
-								fieldDataMap.put(jsonField, fieldData);
-							}
-						} finally {
-							lock.unlock();
-						}
-				
-						StringBuffer buffer = new StringBuffer();
-						Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-						gson.toJson(jo, buffer);
-				
-						fieldData.add(buffer.toString());
-					}
 		
 				Set<String> coordinateSet3 = null;
 				Set<String> coordinateSet4 = null;
