@@ -32,11 +32,13 @@ public class EventMapping implements Solr2SparqlMappingInterface {
 								 final String matchingVarName, final String solrFieldName,
 								 final Map<String, Set<String>> fieldDataMap) {
 		
+		//System.out.println("EVENT");		
+
 		String kgVar = mapping.kgVariableName;
 		JsonObject jo = new JsonObject();
 
 		int index;
-		
+
 		if (matchingVarName.contains(kgVar + "CompanyName")) {
 			index = Integer.parseInt(matchingVarName.substring((kgVar + "CompanyName").length()));
 		} else if (matchingVarName.contains(kgVar + "Date") || matchingVarName.contains(kgVar + "Plz")) {
@@ -48,7 +50,9 @@ public class EventMapping implements Solr2SparqlMappingInterface {
 		} else {
 			index = Integer.parseInt(matchingVarName.substring(kgVar.length()));
 		}
-		
+	
+				
+
 		RDFNode uri = querySolution.get(kgVar + index);
 		if (null == uri) {
 			return;
@@ -58,6 +62,7 @@ public class EventMapping implements Solr2SparqlMappingInterface {
 		String companyName_str = "";
 		String sameAs_str = "";
 		
+		//Date
 		RDFNode date = querySolution.get(kgVar + "Date" + index);
 		
 		if (null != date && date.isLiteral()) {
@@ -80,11 +85,16 @@ public class EventMapping implements Solr2SparqlMappingInterface {
 		
 		RDFNode sameAs = querySolution.get(kgVar + "SameAs" + index);
 		
-		if (null != sameAs && sameAs.isLiteral()) {
-			sameAs_str = sameAs.asLiteral().getLexicalForm().toString();
+		if (null != sameAs) {
+			if(  sameAs.isLiteral() ) {
+				sameAs_str = sameAs.asLiteral().getLexicalForm().toString();
 			
+				involved.addProperty("sameAs", sameAs_str);
+			} else {
+				sameAs_str = sameAs.asResource().toString();
+			}
 			involved.addProperty("sameAs", sameAs_str);
-		}
+		}	
 		
 		
 		Set<String> fieldData = null;
@@ -99,8 +109,9 @@ public class EventMapping implements Solr2SparqlMappingInterface {
 			lock.unlock();
 		}
 			
-		jo.addProperty("involvedCompany", involved.toString());
-		
+		//jo.addProperty("involvedCompany", involved.toString());
+		jo.add("involvedCompany", involved);		
+
 		StringBuffer buffer = new StringBuffer();
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         gson.toJson(jo, buffer);

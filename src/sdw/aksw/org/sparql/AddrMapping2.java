@@ -167,11 +167,16 @@ public class AddrMapping2 implements Solr2SparqlMappingInterface {
 
 			String[] lang = {"@de","@en"};
 
+
+			//if( solrFieldName.equals("foundationPlaceJson") ) {
+			//	System.out.println(solrFieldName + " " + stadt_str );
+			//}
+
 			for (String l : lang ) {
 				if (  
-					( stadt_lit.contains(l) || stadt_lit.equals("") ) && 
-					( bland_lit.contains(l) || bland_lit.equals("") ) && 
-					( land_lit.contains(l) || stadt_lit.equals("") ) 
+					( stadt_lit.contains(l) || stadt_str.equals("") ) && 
+					( bland_lit.contains(l) || bland_str.equals("") ) && 
+					( land_lit.contains(l) || stadt_str.equals("") ) 
 				) {
 				
 					ArrayList<String> list_name = new ArrayList<String>();
@@ -187,9 +192,17 @@ public class AddrMapping2 implements Solr2SparqlMappingInterface {
 					if( !land_str.equals("") ) {
 						list_name.add(land_str);
 					}
+					
 					name = String.join(",", list_name);
 				}	
 			}
+
+			//Fix for foundationPlace
+			if( solrFieldName.equals("foundationPlaceJson") && !stadt_str.equals("") ) {
+					name = stadt_str;
+			}
+				
+			//System.out.println("name " + name );			
 
 			//name = straße_lit+", "+plz_lit+", "+stadt_lit+", "+bland_lit+", "+land_lit;
 			
@@ -253,8 +266,8 @@ public class AddrMapping2 implements Solr2SparqlMappingInterface {
 		//}
 	
 		//For google Y,X save
-		jo.addProperty("location", coordinateArray[1]+","+coordinateArray[0]);
-
+		jo.addProperty("location", coordinateArray[1]+","+coordinateArray[0]);		
+	
 		//JSON
 		if( !name.equals("") ) {
 			Set<String> fieldData = null;
