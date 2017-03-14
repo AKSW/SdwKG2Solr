@@ -28,7 +28,9 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 
 	static final Pattern bracketsPattern = Pattern.compile("\\(.*?\\)");
 
-	static final Pattern pattern = Pattern.compile("[\\d\\.,\\s-]+");
+	static final Pattern dbpediapattern = Pattern.compile("[\\d\\.,\\s-]+");
+	
+	final static protected Pattern coordinatesPattern = Pattern.compile("(?<=POINT\\()([0-9.]+)(\\s+)([0-9.]+)");
 
 	@Override
 	public void fillFieldDataMap(final QuerySolution querySolution, final KgSolrMapping mapping,
@@ -37,18 +39,15 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 		String kgVar = mapping.kgVariableName;
 		JsonObject jo = new JsonObject();
 
-		int index = 0;
-		
-		//Loc+ Straße Plz+ Land+ Bland Stadt
-		
+		int index;
 
 		if (matchingVarName.contains(kgVar + "Name")) {
 			index = Integer.parseInt(matchingVarName.substring((kgVar + "Name").length()));
-		} else if (matchingVarName.contains(kgVar + "Loc") || matchingVarName.contains(kgVar + "Plz")) {
+		} else if (matchingVarName.contains(kgVar + "Lat") || matchingVarName.contains(kgVar + "Lon")) {
 
-			index = Integer.parseInt(matchingVarName.substring( (kgVar + "###").length()) );
-		}
-		else {
+			index = Integer.parseInt(matchingVarName.substring((kgVar + "###").length()));
+
+		} else {
 			index = Integer.parseInt(matchingVarName.substring(kgVar.length()));
 
 		}
@@ -106,62 +105,127 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 
 		// Loc
 		RDFNode loc = querySolution.get(kgVar + "Loc" + index);
-		String loc_str = "";
+		
 
-		if (null != loc) {
-			if (loc.isLiteral()) {
-				loc_str += loc.asLiteral().getLexicalForm().toString();
-			} else if (loc.isResource()) {
-				loc_str += loc.asResource().toString();
-			}
-		}
-				
-		Matcher match = pattern.matcher(loc_str);
+		String coordinatesLiteral = "";
 
-		if (match.matches() && !loc_str.equals("")) {
-			jo.addProperty("location", loc_str.replace(" ", ","));
+		if (null != loc && loc.isLiteral() ) {	
+			coordinatesLiteral = loc.asLiteral().getLexicalForm();
 		}
+
+		Matcher match = coordinatesPattern.matcher(coordinatesLiteral);
+
+		String[] coordinateArray = null;
+		while (match.find()) {
+			int start = match.start();
+			int end = match.end();
+			
+			String coord = coordinatesLiteral.substring(start, end);
+			
+			//System.out.println(coord);
+
+			coordinateArray = coord.split("\\s+");
+			
+			
+		}
+		
+		//coordinateArray = coordinatesLiteral.split("\\s+");
+		
+		if (null == coordinateArray || 2 != coordinateArray.length) {
+			return;
+		}
+		
+		jo.addProperty("location", coordinateArray[1]+","+coordinateArray[0]);
 
 		//JSON
-		Set<String> fieldData = null;
-		lock.lock();
-		try {
-			fieldData = fieldDataMap.get(solrFieldName);
-
-			if (null == fieldData) {
-				fieldData = new ConcurrentHashSet<>();
-				fieldDataMap.put(solrFieldName, fieldData);
+		String jsonField = "locationJson";
+		
+		boolean st_location = true;
+		
+		//JSON st_location
+		if( !name_str.equals("") ) {
+			Set<String> fieldData = null;
+			lock.lock();
+			try {
+				fieldData = fieldDataMap.get(jsonField);
+	
+				if (null == fieldData) {
+					fieldData = new ConcurrentHashSet<>();
+					fieldDataMap.put(jsonField, fieldData);
+				}
+			} finally {
+				lock.unlock();
 			}
-		} finally {
-			lock.unlock();
+	
+			StringBuffer buffer = new StringBuffer();
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			gson.toJson(jo, buffer);
+	
+			fieldData.add(buffer.toString());
+			
+			//not standart_location
+				
+			if(matchingVarName.startsWith("foundationPlace")) {
+				 jsonField = "foundationPlaceJson";
+				 st_location = false;
+			 }
+			
+			 if(matchingVarName.startsWith("headquarter")) {
+				 jsonField = "headquarterLocationJson";
+				 st_location = false;
+			 }
+
+			 if( false == st_location ) {
+				 //JSON
+				Set<String> fieldData2 = null;
+				lock.lock();
+				try {
+					fieldData2 = fieldDataMap.get(jsonField);
+		
+					if (null == fieldData2) {
+						fieldData2 = new ConcurrentHashSet<>();
+						fieldDataMap.put(jsonField, fieldData2);
+					}
+				} finally {
+					lock.unlock();
+				}
+		
+				fieldData2.add(buffer.toString());
+				
+				 //St_Name
+				Set<String> fieldData3 = null;
+				lock.lock();
+				try {
+					fieldData3 = fieldDataMap.get("locationName");
+		
+					if (null == fieldData3) {
+						fieldData3 = new ConcurrentHashSet<>();
+						fieldDataMap.put("locationName", fieldData3);
+					}
+				} finally {
+					lock.unlock();
+				}
+		
+				fieldData3.add(name_str);
+			 }
 		}
-
-		StringBuffer buffer = new StringBuffer();
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		gson.toJson(jo, buffer);
-
-		fieldData.add(buffer.toString());
-
+		
 		
 		//Coordfields
-
-		// System.out.println(lat_str+","+lon_str);
-
-		if (match.matches() && !loc_str.equals(""))
+		
+//		System.out.println(lat_str+","+lon_str);
+		
+		if (true )
 
 		{
-
-			boolean st_location = true;
-
+			
 			String nameLatLon = "locationLatLon";
 			String nameRpt = "locationRpt";
-
-			String[] loc_arr = loc_str.split(" ");
-
-			String latitude = loc_arr[1];
-			String longitude = loc_arr[0];
+			
+			String latitude = coordinateArray[1];
+			String longitude = coordinateArray[0];
 			String latLong = latitude + "," + longitude;
-			String rpt = longitude + " " + latitude;
+			String rpt = latitude + "," + longitude;
 
 			Set<String> coordinateSet0 = null;
 			Set<String> coordinateSet1 = null;
@@ -182,27 +246,27 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 			} finally {
 				lock.unlock();
 			}
-
+			
 			coordinateSet0.add(latLong);
 			coordinateSet1.add(rpt);
 
-			if (matchingVarName.startsWith("foundationPlace")) {
-				nameLatLon = "foundationPlaceLatLon";
-				nameRpt = "foundationPlaceRpt";
-				st_location = false;
-			}
+			 if(matchingVarName.startsWith("foundationPlace")) {
+				 nameLatLon = "foundationPlaceLatLon";
+				 nameRpt = "foundationPlaceRpt";
+				 jsonField = "foundationPlaceJson";
+			 }
+			
+			 if(matchingVarName.startsWith("headquarter")) {
+				 nameLatLon = "headquarterLocationLatLon";
+				 nameRpt = "headquarterLocationRpt";
+				 jsonField = "headquarterLocationJson";
+			 }
 
-			if (matchingVarName.startsWith("headquarter")) {
-				nameLatLon = "headquarterLocationLatLon";
-				nameRpt = "headquarterLocationRpt";
-				st_location = false;
-			}
-
-			if (false == st_location) {
-
+			 if( false == st_location ) {
+		
 				Set<String> coordinateSet3 = null;
 				Set<String> coordinateSet4 = null;
-
+	
 				lock.lock();
 				try {
 					coordinateSet3 = fieldDataMap.get(nameLatLon);
@@ -210,7 +274,7 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 						coordinateSet3 = new ConcurrentHashSet<>();
 						fieldDataMap.put(nameLatLon, coordinateSet3);
 					}
-
+	
 					coordinateSet4 = fieldDataMap.get(nameRpt);
 					if (null == coordinateSet4) {
 						coordinateSet4 = new ConcurrentHashSet<>();
@@ -219,10 +283,10 @@ public class LocationMapping implements Solr2SparqlMappingInterface {
 				} finally {
 					lock.unlock();
 				}
-
+	
 				coordinateSet3.add(latLong);
 				coordinateSet4.add(rpt);
-			}
+			 }
 		}
 	}
 }
