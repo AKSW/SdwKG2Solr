@@ -1,0 +1,119 @@
+{
+  "solrUrl": "http://localhost:10083/solr/companiesNew",
+  "sparqlUrl": "http://localhost:8892/sparql",
+  "graphNames": [
+    "http://gcd.dfki.de",
+  ],
+  "kgRestrictions": [
+  	"<http://www.w3.org/ns/adms#identifier> ?identifier"
+  ],
+  "mappings": [
+    {
+      "kgRequiredPredicateNames": [
+        "http://www.w3.org/2004/02/skos/core#prefLabel",
+        "http://www.w3.org/2004/02/skos/core#altLabel"        
+      ],
+      "kgOptionalPredicateNames": [],
+      "kgVariableName": "label",      
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "nameEn",
+      		"matchPattern": "(^\".*\"$)|(.*@en$)"
+      	},
+      	{
+      		"solrFieldName": "nameDe",
+      		"matchPattern": "(.*@de$)"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+	"http://corp.dbpedia.org/ontology#orgType"
+      ],
+      "kgOptionalPredicateNames": [],
+      "kgVariableName": "type",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "type"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [
+        "http://www.w3.org/2002/07/owl#sameAs"
+      ],
+      "kgVariableName": "sameAs",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "sameAs"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": ["http://www.w3.org/ns/org#subOrganizationOf", "http://www.w3.org/ns/org#linkedTo"],
+      "kgVariableName": "inLinks",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "inLink",
+      		"matchPattern": null
+      	}
+      ]      
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": ["http://www.w3.org/ns/org#hasSubOrganization"],
+      "kgVariableName": "outLinks",
+       "solrMappingGroups": [
+      	{
+      		"solrFieldName": "outLink",
+      		"matchPattern": null
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://dbpedia.org/ontology/numberOfEmployees"
+	],
+      "kgVariableName": "employeeNumber",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "employeeNumber"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [
+      ],
+      "kgOptionalPredicateNames": [
+	"http://xmlns.com/foaf/0.1/homepage"
+	],
+      "kgVariableName": "homepage",
+      "solrMappingGroups": [
+      	{
+      		"solrFieldName": "homepage",
+      		"matchPattern": "^http.*"
+      	}
+      ]
+    },
+    {
+      "kgRequiredPredicateNames": [],
+      "kgOptionalPredicateNames": [],
+      "kgJsonPredicateNames": [
+	"<http://www.w3.org/ns/org#hasSite> Loc=<http://www.opengis.net/ont/geosparql#asWKT> Strasse=<http://www.w3.org/ns/org#siteAddress> Plz=<http://corp.dbpedia.org/ontology#postalCode> Land=<http://corp.dbpedia.org/ontology#countryName> Bland=<http://corp.dbpedia.org/ontology#countyName> Stadt=<http://corp.dbpedia.org/ontology#cityName>",
+	],
+      "kgVariableName": "location",
+      "sparql2SolrMappingClass": "sdw.aksw.org.sparql.AddrMapping",
+       "solrMappingGroups": [
+      	{
+      		"solrFieldName": "locationJson",
+      		"matchPattern": null
+      	}
+      ]
+    }
+  ]
+}
